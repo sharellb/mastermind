@@ -11,7 +11,7 @@ class MasterMind
 	end
 
 	def play
-		until @turns == 12 || @guess == @pegs 
+		until @turns == 4 || @guess == @pegs 
 			player_guess
 			feedback
 		end
@@ -88,7 +88,8 @@ class MasterMind
 		puts "Do you want to play again (y/n)?"
 		play_response = gets.chomp
 		if play_response == "y"
-			MasterMind.new
+			game = MasterMind.new
+			game.play
 		elsif play_response == "n"
 			puts "Thanks for playing!"
 		else
@@ -107,7 +108,6 @@ def save #save the game as a yaml file into the games directory
 	puts "Game has been saved!"
 end
 
-
 def start_game
 	puts "Welcome to Mastermind! Do you want to load an old game? (y/n)"
 	old_game = gets.chomp
@@ -123,7 +123,6 @@ def start_game
 		start_game
 	end
 end
-
 
 start_game
 
