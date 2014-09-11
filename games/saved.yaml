@@ -1,0 +1,16 @@
+--- !ruby/object:MasterMind
+colors:
+- w
+- y
+- o
+- p
+- b
+- g
+turns: 2
+game_over: false
+pegs:
+- g
+- g
+- w
+- p
+guess: save

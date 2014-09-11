@@ -1,31 +1,39 @@
-#mastermind
+require 'yaml'
 
+class MasterMind 
 
-class MasterMind
-	COLORS = ['w','y','o','p','b','g'] 
-
-	attr_reader :game_over
-	
 	def initialize
+		@colors = ['w','y','o','p','b','g']
 		@turns = 0 
+		@game_over = false
+		pick_pegs(@colors)
 		rules
-		pick_pegs(COLORS)
-		until game_over
+	end
+
+	def play
+		until @turns == 12 || @guess == @pegs 
 			player_guess
 			feedback
-			end_game
+		end
+		if @turns == 12
+			puts "Sorry you're all out of turns."
+			puts "The order was #{@pegs}"
+		elsif @guess == @pegs 
+			puts "YOU WON!"
 		end
 		play_again
 	end
 
 	def rules
-		puts " "
-		puts "Welcome to Mastermind! You will be playing against the computer in this game."
-		puts "The computer will choose the order of 4 pegs of 6 different colors (white, yellow, orange, purple, blue, and green)."
-		puts "It's up to you to figure out the order and color of the pegs. Colors can be reused or not used at all. You get 12 guesses."
-		puts "Don't worry. The computer will give you feedback after each guess."
-		puts "Good luck!"
-		puts " "
+		puts """
+		You will be playing against the computer in this game.
+		The computer will choose the order of 4 pegs of 6 different colors 
+		(white, yellow, orange, purple, blue, and green).
+		It's up to you to figure out the order and color of the pegs. 
+		Colors can be reused or not used at all. You get 12 guesses.
+		Don't worry. The computer will give you feedback after each guess.
+		Good luck!
+		"""
 	end
 
 	def pick_pegs(choices) 
@@ -36,25 +44,28 @@ class MasterMind
 		end
 	end
 
-	
-	@game_over = false
-
-
 	def player_guess 
 		puts "Guesses used: #{@turns}"
 		puts "Put in your guess separated by commas. Choose from w, y, o, p, b, or g."
-		@guess = gets.chomp.split(",")
+		puts "Or type 'save' to save the game."
+		@guess = gets.chomp
+		if @guess == 'save'
+			save
+			exit(0)
+		else
+			@guess = @guess.split(",")
+		end
+
 		if @guess.length != 4
 			puts "You didn't put in four pegs. Try again!" 
 			player_guess
 		elsif @guess.each do |x|
-				if !COLORS.include? x
+				if !@colors.include? x
 					puts "#{x} is not a valid color. Try again!" 
 					player_guess
 				end
 			end
-		end
-		@turns += 1 
+		end 
 	end
 
 	def feedback 
@@ -70,18 +81,7 @@ class MasterMind
 		puts "You have #{correct} in the right place."
 		puts "You have #{right_color} of the right color but not in the correct place."
 		puts " "
-	end
-
-	def end_game
-		if @turns == 12
-			puts "Sorry you're all out of turns."
-			puts "The order was #{@pegs}"
-			@game_over = true
-		elsif @guess == @pegs 
-			puts "YOU WON!"
-			@game_over = true
-		end
-		
+		@turns += 1
 	end
 
 	def play_again
@@ -98,7 +98,34 @@ class MasterMind
 	end
 end
 
-MasterMind.new
+def save #save the game as a yaml file into the games directory
+	Dir.mkdir('games') unless Dir.exist? 'games'
+	name = 'games/saved.yaml'
+	File.open(name, 'w') do |file|
+		file.puts YAML.dump(self)
+	end
+	puts "Game has been saved!"
+end
+
+
+def start_game
+	puts "Welcome to Mastermind! Do you want to load an old game? (y/n)"
+	old_game = gets.chomp
+	if old_game == "y" #load old game
+		content = File.open('games/saved.yaml', 'r') {|file| file.read }
+		game = YAML.load(content) 
+		game.play
+	elsif old_game == "n" #start new game
+		game = MasterMind.new
+		game.play
+	else
+		puts "That's not an option. Try again!"
+		start_game
+	end
+end
+
+
+start_game
 
 
 
